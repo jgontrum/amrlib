@@ -194,7 +194,16 @@ class MultiheadAttention(nn.Module):
         return attn, attn_weights
 
     def in_proj_qkv(self, query):
-        return self._in_proj(query).chunk(3, dim=-1)
+        #return self._in_proj(query).chunk(3, dim=-1)   # original code
+        # Note: As of torch 1.7 this line is failing with...  RuntimeError: one of the variables needed for
+        # gradient computation has been modified by an inplace operation: [torch.cuda.FloatTensor [24, 129, 1536]]
+        # See release notes for v1.7 (torch.chunk) for an explanation.  A temporary fix is to use unsafe_chunk instead.
+        # See https://discuss.pytorch.org/t/runtimeerror-for-chunk-inplace-operation-new-with-torch-1-7/105334
+        return self._in_proj(query).unsafe_chunk(3, dim=-1)
+        # Possible solution...
+        # proj = self._in_proj(query)
+        # sz   = proj.size()[2] // 3
+        # return proj[:,:,:sz], proj[:,:,sz:2*sz], proj[:,:,2*sz:]        
 
     def in_proj_kv(self, key):
         return self._in_proj(key, start=self.embed_dim).chunk(2, dim=-1)

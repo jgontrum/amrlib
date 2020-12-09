@@ -5,7 +5,7 @@ torch>=1.6
 numpy
 spacy       # also requires model download `python -m spacy download en_core_web_sm`
 tqdm
-transformers
+transformers    # Note that original models trained with v3.4.0
 smatch
 
 # Used for amr_view / PlotAMR
@@ -18,4 +18,4 @@ nltk
 # Other
 unidecode   # LDC2020T02 pre-processing and adding wiki tags
 requests    # Adding wiki tags
-word2number # For alignment
+word2number # used in alignments code
